@@ -9,23 +9,28 @@ permissions:
   contents: write
 
 jobs:
-  build:
+  build-release:
     runs-on: ubuntu-latest
 
     steps:
       - uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4
 
-      - env:
+      - name: Build and release
+        env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           export K3S_VERSION="$(cat k3s.version)"
+          echo "K3S version: ${K3S_VERSION}"
 
           export RELEASE_EXISTS=$(gh release view ${K3S_VERSION} &> /dev/null; echo $?)
 
           if [[ "${RELEASE_EXISTS}" -eq 0 ]]; then
-            echo "Release ${K3S_VERSION} already exist, skipping..."
+            echo "Release ${K3S_VERSION} already exist, exiting..."
             exit 0
           fi
 
+          echo "Building k3s-${K3S_VERSION} sysext"
           ./build.sh
-          gh release create "${K3S_VERSION}" dist/*.raw
+
+          echo "Creating release ${K3S_VERSION}"
+          gh release create --title "${K3S_VERSION}" "${K3S_VERSION}" dist/*.raw
