@@ -1,0 +1,31 @@
+name: Build and release
+
+on:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          export K3S_VERSION="$(cat k3s.version)"
+
+          export RELEASE_EXISTS=$(gh release view ${K3S_VERSION} &> /dev/null; echo $?)
+
+          if [[ "${RELEASE_EXISTS}" -eq 0 ]]; then
+            echo "Release ${K3S_VERSION} already exist, skipping..."
+            exit 0
+          fi
+
+          ./build.sh
+          gh release create "${K3S_VERSION}" dist/*.raw
