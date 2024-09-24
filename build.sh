@@ -98,5 +98,6 @@ rm -f "${SYSEXTNAME}.raw"
 mksquashfs "${SYSEXTNAME}" "../dist/${SYSEXTNAME}.raw" -all-root -noappend
 echo "Created ${SYSEXTNAME}.raw"
 
-sha256sum "../dist/${SYSEXTNAME}.raw" > "../dist/${SYSEXTNAME}.raw.sha256"
+cd ../dist/
+sha256sum "${SYSEXTNAME}.raw" > "${SYSEXTNAME}.raw.sha256"
 echo "Created ${SYSEXTNAME}.raw.sha256"
