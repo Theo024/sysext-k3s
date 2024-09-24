@@ -95,8 +95,8 @@ EXTENSION_RELOAD_MANAGER=1
 EOF
 
 rm -f "${SYSEXTNAME}.raw"
-mksquashfs "${SYSEXTNAME}" ../dist/"${SYSEXTNAME}".raw -all-root -noappend
+mksquashfs "${SYSEXTNAME}" "../dist/${SYSEXTNAME}.raw" -all-root -noappend
 echo "Created ${SYSEXTNAME}.raw"
 
-sha256sum "${SYSEXTNAME}.raw" > "${SYSEXTNAME}.raw.sha256"
+sha256sum "../dist/${SYSEXTNAME}.raw" > "../dist/${SYSEXTNAME}.raw.sha256"
 echo "Created ${SYSEXTNAME}.raw.sha256"
