@@ -94,8 +94,9 @@ ARCHITECTURE=x86-64
 EXTENSION_RELOAD_MANAGER=1
 EOF
 
-rm -f "${SYSEXTNAME}".raw
+rm -f "${SYSEXTNAME}.raw"
 mksquashfs "${SYSEXTNAME}" ../dist/"${SYSEXTNAME}".raw -all-root -noappend
 echo "Created ${SYSEXTNAME}.raw"
 
-# rm -rf "${SYSEXTNAME}"
+sha256sum "${SYSEXTNAME}.raw" > "${SYSEXTNAME}.raw.sha256"
+echo "Created ${SYSEXTNAME}.raw.sha256"

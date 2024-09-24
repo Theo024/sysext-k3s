@@ -22,15 +22,31 @@ jobs:
           export K3S_VERSION="$(cat k3s.version)"
           echo "K3S version: ${K3S_VERSION}"
 
-          export RELEASE_EXISTS=$(gh release view ${K3S_VERSION} &> /dev/null; echo $?)
+          export RELEASE_EXISTS=$(gh release view latest &> /dev/null; echo $?)
 
           if [[ "${RELEASE_EXISTS}" -eq 0 ]]; then
-            echo "Release ${K3S_VERSION} already exist, exiting..."
-            exit 0
+            if gh release view latest --json assets -q '.assets[].name' | grep -q "k3s-${K3S_VERSION}"; then
+              echo "Version ${K3S_VERSION} is already present in the release, exiting..."
+              exit 0
+            fi
           fi
-
+        
           echo "Building k3s-${K3S_VERSION} sysext"
           ./build.sh
 
-          echo "Creating release ${K3S_VERSION}"
-          gh release create --title "${K3S_VERSION}" "${K3S_VERSION}" dist/*.raw
+          echo "Generating SHA256SUMS"
+          (
+            cd dist/ && \
+            gh release download --pattern '*.sha256' && \
+            for file in *.sha256; do cat "$file"; done > SHA256SUMS
+          )
+
+          if [[ "${RELEASE_EXISTS}" -eq 0 ]]; then
+            echo "Uploading assets to the release"
+            gh release delete-asset latest SHA256SUMS
+            gh release upload latest dist/*
+          else
+            echo "Creating release"
+            cp dist/
+            gh release create --title latest latest dist/*
+          fi
