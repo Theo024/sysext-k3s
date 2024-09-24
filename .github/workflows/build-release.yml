@@ -44,7 +44,7 @@ jobs:
 
             echo "Uploading assets to the release"
             gh release delete-asset latest SHA256SUMS
-            gh release upload latest dist/*
+            gh release upload latest dist/k3s-${K3S_VERSION}* dist/SHA256SUMS
           else
             cp dist/*.sha256 dist/SHA256SUMS
 
