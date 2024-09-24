@@ -30,23 +30,24 @@ jobs:
               exit 0
             fi
           fi
-        
+
           echo "Building k3s-${K3S_VERSION} sysext"
           ./build.sh
 
-          echo "Generating SHA256SUMS"
-          (
-            cd dist/ && \
-            gh release download --pattern '*.sha256' && \
-            for file in *.sha256; do cat "$file"; done > SHA256SUMS
-          )
-
           if [[ "${RELEASE_EXISTS}" -eq 0 ]]; then
+            echo "Generating SHA256SUMS"
+            (
+              cd dist/ && \
+              gh release download --pattern '*.sha256' && \
+              for file in *.sha256; do cat "$file"; done > SHA256SUMS
+            )
+
             echo "Uploading assets to the release"
             gh release delete-asset latest SHA256SUMS
             gh release upload latest dist/*
           else
+            cp dist/*.sha256 dist/SHA256SUMS
+
             echo "Creating release"
-            cp dist/
             gh release create --title latest latest dist/*
           fi
